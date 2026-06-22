@@ -1,0 +1,8 @@
+.env
+.venv/
+exports/
+__pycache__/
+venv/
+.idea/
+uploads/
+storage/
