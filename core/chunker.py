@@ -69,7 +69,7 @@ def processPdf(filePath: str) -> list[dict]:
     for i, chunk in enumerate(allChunks):
         chunk["chunkIndex"] = i
 
-    return chunks
+    return allChunks
 
 
-processPdf("E:/Ai/RAG/ChatGPT-code.pdf")
+# print(processPdf("C:/Users/HP/Downloads/UNIT - IV  QUERY PROCESSING.pdf"))

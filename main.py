@@ -57,8 +57,13 @@ async def uploadDocument(file: UploadFile = File(...)):
     for i in range(0, len(chunks), batchSize):
         batch = chunks[i:i + batchSize]
         texts = [c["text"] for c in batch]
+        # embeddings = embedBatch(geminiClient, texts)
         embeddings = embedBatch(geminiClient, texts)
         allEmbeddings.extend(embeddings)
+    
+    # print("all embeddings",allEmbeddings)
+    print("Chunks:", len(chunks))
+    print("Embeddings:", len(allEmbeddings))
 
     collection = getOrCreateCollection(chromaClient, documentId)
     storeChunks(collection, chunks, allEmbeddings)
@@ -102,7 +107,7 @@ async def queryDocument(request: QueryRequest):
     
 
     collection = getOrCreateCollection(chromaClient, request.document_id)
-    chunkIds = [f"chunk_{s.chunk_index}" for s in sources]
+    chunkIds = [f"chunks_{s.chunk_index}" for s in sources]
     result = collection.get(ids=chunkIds, include=["documents"])
     chunkTexts = result["documents"]
 

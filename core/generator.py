@@ -14,13 +14,17 @@ def buildPrompt(question: str, chunks: list[str]) -> str:
     )
 
     return f"""
-    You are a document assistant. Answer the user's question using ONLY the context provided below.
+    You are a document assistant.
+
+    Answer the user's question using ONLY the provided context.
 
     Rules:
-    - Only use information from the provided context
-    - If the answer is not in the context, say "I couldn't find that information in the document"
-    - Always mention which chunk(s) your answer comes from (e.g., "According to Chunk 2...")
+    - Use the context even if the wording is different from the question
+    - You may combine information across multiple chunks
+    - If the context contains relevant information, you MUST answer
+    - Only say "I couldn't find that information in the document" if NONE of the chunks contain relevant information
     - Be concise and direct
+    - Always mention chunk numbers used (e.g., "According to Chunk 3")
 
     CONTEXT:
     {context_block}
