@@ -8,9 +8,11 @@ from dotenv import load_dotenv
 
 from core.chunker import processPdf
 from core.embedder import createGenAiClient, embedBatch
-from core.vectorStore import createChromaClient, getOrCreateCollection, storeChunks, deleteDocument, getCollectionCounts, listDocuments
+from core.vectorStore import createChromaClient, getOrCreateCollection, storeChunks, deleteDocument, getCollectionCounts, listCollections
 from core.retriever import retrieveChunks
 from core.generator import generateAnswer
+
+from db.db import readDb, writeDb
 
 load_dotenv()
 
@@ -25,7 +27,7 @@ app = FastAPI(
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
-document_registry: dict[str, str] = {}
+document_registry: dict[str, str] = readDb()
 
 
 @app.post("/documents/upload", response_model=UploadResponse)
@@ -69,6 +71,8 @@ async def uploadDocument(file: UploadFile = File(...)):
     storeChunks(collection, chunks, allEmbeddings)
 
     document_registry[documentId] = file.filename
+    
+    writeDb(document_registry)
 
     return UploadResponse(
         document_id = documentId,
@@ -120,6 +124,24 @@ async def queryDocument(request: QueryRequest):
         total_chunks_searched= totalChunks,
         model= model
     )
+
+
+@app.get("/documents", response_model=ListDocumentsResponse)
+async def getDocumentList():
+    chromaClient = createChromaClient()
+    collectionNames = listCollections(chromaClient)
+
+    docs = []
+    for docId in collectionNames:
+        count = getCollectionCounts(chromaClient, docId)
+        docs.append(DocumentInfo(
+            document_id=docId,
+            filename=document_registry.get(docId, "unknown"),
+            total_chunks=count
+        ))
+
+    return ListDocumentsResponse(documents=docs, total=len(docs))
+
 
 
 @app.get("/health")

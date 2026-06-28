@@ -46,7 +46,7 @@ def searchChunks(collection: chromadb.Collection, queryEmbedded: list[float], to
 def deleteDocument(chromaClient: chromadb.PersistentClient, documentId: str) -> None:
     chromaClient.delete_collection(name=documentId)
 
-def listDocuments(chromaClient: chromadb.PersistentClient) -> list[str]:
+def listCollections(chromaClient: chromadb.PersistentClient) -> list[str]:
     return [c.name for c in chromaClient.list_collections()]
 
 def getCollectionCounts(chromaClient: chromadb.PersistentClient, documentId: str) -> int:
